@@ -44,10 +44,6 @@ void process_listen(const boost::system::error_code& error, const aware::contact
     }
 }
 
-void test_method()
-{
-}
-
 extern "C" JNIEXPORT
 void JNICALL Java_dk_xpg_aware_test_AwareTest_initTest(JNIEnv* env, jobject self, jobject aware_object)
 {

@@ -25,12 +25,12 @@ public class Aware {
         return nativeData;
     }
 
-    private void discover(String serviceType) {
-        adapter.discover(serviceType);
+    private void startDiscover(AwareContact contact) {
+        adapter.startDiscover(contact);
     }
 
-    private void stopDiscover(String serviceType) {
-        adapter.stopDiscover(serviceType);
+    private void stopDiscover(AwareContact contact) {
+        adapter.stopDiscover(contact);
     }
 
     private void startAnnouncement(AwareContact contact) {

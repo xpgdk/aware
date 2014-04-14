@@ -47,7 +47,7 @@ public:
     client(JNIEnv* env, jobject awareObject);
     ~client();
 
-    service_subscription_ptr add_monitor(monitor_ptr monitor, const std::string& serviceType) const;
+    service_subscription_ptr add_monitor(monitor_ptr monitor, const aware::contact& contact) const;
     service_announcement_ptr add_announcement(const aware::contact& contact) const;
 
 private:

@@ -18,14 +18,16 @@ aware_jni::~aware_jni()
     jni_env->DeleteGlobalRef(java_self);
 }
 
-service_subscription_ptr aware_jni::subscribe_service(const std::string& service_type, monitor_ptr monitor)
+service_subscription_ptr aware_jni::subscribe_service(const aware::contact& contact, monitor_ptr monitor)
 {
     service_subscription_ptr tmp;
+    
+    const std::string service_type = contact.get_type();
 
     service_subscription_map::iterator where = service_subscribers.lower_bound(service_type);
     if ((where == service_subscribers.end()) || (service_subscribers.key_comp()(service_type, where->first)))
     {
-        tmp = boost::make_shared<aware::android::detail::service_subscription>(boost::ref(*this), service_type);
+        tmp = boost::make_shared<aware::android::detail::service_subscription>(boost::ref(*this), contact);
         boost::weak_ptr<aware::android::detail::service_subscription> stored_value(tmp);
         where = service_subscribers.insert(where,
                                            service_subscription_map::value_type(service_type,stored_value));
@@ -45,18 +47,18 @@ service_announcement_ptr aware_jni::announce_service(const aware::contact& conta
     return res;
 }
 
-void aware_jni::listen_for_service(const std::string& service_type)
+void aware_jni::listen_for_service(const aware::contact& contact)
 {
-    jmethodID methodId = jni_env->GetMethodID(jni_env->GetObjectClass(java_self), "discover", "(Ljava/lang/String;)V");
+    jmethodID methodId = jni_env->GetMethodID(jni_env->GetObjectClass(java_self), "startDiscover", "(Ldk/xpg/aware/AwareContact;)V");
 
-    jni_env->CallVoidMethod(java_self, methodId, jni_env->NewStringUTF(service_type.c_str()));
+    jni_env->CallVoidMethod(java_self, methodId, create_java_contact(contact));
 }
 
-void aware_jni::stop_listen(const std::string& service_type)
+void aware_jni::stop_listen(const aware::contact& contact)
 {
-    jmethodID methodId = jni_env->GetMethodID(jni_env->GetObjectClass(java_self), "stopDiscover", "(Ljava/lang/String;)V");
+    jmethodID methodId = jni_env->GetMethodID(jni_env->GetObjectClass(java_self), "stopDiscover", "(Ldk/xpg/aware/AwareContact;)V");
 
-    jni_env->CallVoidMethod(java_self, methodId, jni_env->NewStringUTF(service_type.c_str()));
+    jni_env->CallVoidMethod(java_self, methodId, create_java_contact(contact));
 }
 
 void aware_jni::start_announcement(const aware::contact& contact)
@@ -139,16 +141,16 @@ jobject aware_jni::create_java_contact(const aware::contact& contact)
     }
 }
 
-service_subscription::service_subscription(aware_jni& aware, const std::string& service_type)
+service_subscription::service_subscription(aware_jni& aware, const aware::contact& contact)
     : aware(aware),
-      service_type(service_type)
+      contact(contact)
 {
-    aware.listen_for_service(service_type);
+    aware.listen_for_service(contact);
 }
 
 service_subscription::~service_subscription()
 {
-    aware.stop_listen(service_type);
+    aware.stop_listen(contact);
 }
 
 void service_subscription::add_monitor(monitor_weak_ptr monitor)
