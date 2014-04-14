@@ -39,6 +39,12 @@ service_subscription_ptr aware_jni::subscribe_service(const std::string& service
     return res;
 }
 
+service_announcement_ptr aware_jni::announce_service(const aware::contact& contact)
+{
+    service_announcement_ptr res = boost::make_shared<aware::android::detail::service_announcement>(boost::ref(*this), contact);
+    return res;
+}
+
 void aware_jni::listen_for_service(const std::string& service_type)
 {
     jmethodID methodId = jni_env->GetMethodID(jni_env->GetObjectClass(java_self), "discover", "(Ljava/lang/String;)V");
@@ -53,6 +59,20 @@ void aware_jni::stop_listen(const std::string& service_type)
     jni_env->CallVoidMethod(java_self, methodId, jni_env->NewStringUTF(service_type.c_str()));
 }
 
+void aware_jni::start_announcement(const aware::contact& contact)
+{
+    jobject java_contact = create_java_contact(contact);
+    jmethodID method_id = jni_env->GetMethodID(jni_env->GetObjectClass(java_self), "startAnnouncement", "(Ldk/xpg/aware/AwareContact;)V");
+    jni_env->CallVoidMethod(java_self, method_id, java_contact);
+}
+
+void aware_jni::stop_announcement(const aware::contact& contact)
+{
+    jobject java_contact = create_java_contact(contact);
+    jmethodID method_id = jni_env->GetMethodID(jni_env->GetObjectClass(java_self), "stopAnnouncement", "(Ldk/xpg/aware/AwareContact;)V");
+    jni_env->CallVoidMethod(java_self, method_id, java_contact);
+}
+
 void aware_jni::deliver_response(const response_type& response)
 {
     service_subscription_map::iterator it = service_subscribers.find(response.second.get_type());
@@ -62,6 +82,60 @@ void aware_jni::deliver_response(const response_type& response)
         } else {
             service_subscribers.erase(it);
         }
+    }
+}
+
+jobject aware_jni::create_java_contact(const aware::contact& contact)
+{
+    jclass java_contact_class = jni_env->FindClass("dk/xpg/aware/AwareContact");
+    if (contact.get_endpoint().address().is_unspecified()) {
+        // Use 2 argument constructor
+        jmethodID constructorId = jni_env->GetMethodID(java_contact_class, "<init>", "(Ljava/lang/String;Ljava/lang/String;)V");
+        return jni_env->NewObject(java_contact_class, 
+                                  constructorId, 
+                                  jni_env->NewStringUTF(contact.get_type().c_str()),
+                                  jni_env->NewStringUTF(contact.get_name().c_str()));
+
+    } else {
+        // Use 4 argument constructor
+        jmethodID constructorId = jni_env->GetMethodID(java_contact_class, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/net/InetAddress;I)V");
+
+        jint port = contact.get_endpoint().port();
+        jobject inet_address;
+
+        boost::asio::ip::address address = contact.get_endpoint().address();
+
+        jclass inet_address_class = jni_env->FindClass("java/net/InetAddress");
+        jmethodID get_by_address_id = jni_env->GetStaticMethodID(inet_address_class, "getByAddress", "([B)Ljava/net/InetAddress;");
+
+        if( address.is_v6() ) {
+            boost::asio::ip::address_v6 addr = address.to_v6();
+            boost::asio::ip::address_v6::bytes_type b = addr.to_bytes();
+            jbyteArray data_array = jni_env->NewByteArray(b.size());
+            jbyte *data = jni_env->GetByteArrayElements(data_array, NULL);
+            for(size_t i=0; i<b.size(); i++) {
+                data[i] = b[i];
+            }
+            jni_env->ReleaseByteArrayElements(data_array, data, 0);
+            inet_address = jni_env->CallStaticObjectMethod(inet_address_class, get_by_address_id, data_array);
+        } else {
+            // Else assume v4
+            boost::asio::ip::address_v4 addr = address.to_v4();
+            boost::asio::ip::address_v4::bytes_type b = addr.to_bytes();
+            jbyteArray data_array = jni_env->NewByteArray(b.size());
+            jbyte *data = jni_env->GetByteArrayElements(data_array, NULL);
+            for(size_t i=0; i<b.size(); i++) {
+                data[i] = b[i];
+            }
+            jni_env->ReleaseByteArrayElements(data_array, data, 0);
+            inet_address = jni_env->CallStaticObjectMethod(inet_address_class, get_by_address_id, data_array);
+        }
+
+        return jni_env->NewObject(java_contact_class, 
+                                  constructorId, 
+                                  jni_env->NewStringUTF(contact.get_type().c_str()),
+                                  jni_env->NewStringUTF(contact.get_name().c_str()),
+                                  inet_address, port);
     }
 }
 

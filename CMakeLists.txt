@@ -108,6 +108,7 @@ set(AWARE_AVAHI_SOURCE
 
 set(AWARE_ANDROID_SOURCE
   src/android/monitor_socket.cpp
+  src/android/announce_socket.cpp
   src/android/detail/client.cpp
   src/android/detail/aware_jni.cpp
 )

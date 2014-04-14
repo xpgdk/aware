@@ -33,6 +33,14 @@ public class Aware {
         adapter.stopDiscover(serviceType);
     }
 
+    private void startAnnouncement(AwareContact contact) {
+        adapter.startAnnouncement(contact);
+    }
+
+    private void stopAnnouncement(AwareContact contact) {
+        adapter.stopAnnouncement(contact);
+    }
+
     public native void serviceJoin(AwareContact contact);
     public native void serviceLeave(AwareContact contact);
     public native void failure(AwareContact contact, int errorCode);

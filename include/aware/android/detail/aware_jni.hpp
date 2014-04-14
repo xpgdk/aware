@@ -29,13 +29,17 @@ namespace detail
 
 class client;
 class service_subscription;
+class service_announcement;
 
 typedef boost::shared_ptr<aware::android::detail::service_subscription> service_subscription_ptr;
 typedef boost::weak_ptr<aware::android::detail::service_subscription> service_subscription_weak_ptr;
 
+typedef boost::shared_ptr<aware::android::detail::service_announcement> service_announcement_ptr;
+
 class aware_jni
 {
     friend class service_subscription;
+    friend class service_announcement;
     typedef std::map<std::string, service_subscription_weak_ptr> service_subscription_map;
 
 public:
@@ -45,12 +49,18 @@ public:
     ~aware_jni();
 
     service_subscription_ptr subscribe_service(const std::string& service_type, monitor_ptr monitor);
+    service_announcement_ptr announce_service(const aware::contact& contact);
 
     void deliver_response(const response_type& response);
 
 private:
     void listen_for_service(const std::string& service_type);
     void stop_listen(const std::string& service_type);
+
+    void start_announcement(const aware::contact& contact);
+    void stop_announcement(const aware::contact& contact);
+
+    jobject create_java_contact(const aware::contact& contact);
 
 private:
     JNIEnv* jni_env;
@@ -64,6 +74,7 @@ class service_subscription
 public:
     service_subscription(aware_jni& aware, const std::string& service_type);
     ~service_subscription();
+
     void add_monitor(monitor_weak_ptr monitor);
 
     void deliver_response(const aware_jni::response_type& response);
@@ -72,6 +83,26 @@ private:
     aware_jni& aware;
     const std::string service_type;
     monitors_type monitors;
+};
+
+class service_announcement
+{
+public:
+    service_announcement(aware_jni& aware, const aware::contact& contact)
+        : aware(aware),
+          contact(contact)
+    {
+        aware.start_announcement(contact);
+    }
+
+    ~service_announcement()
+    {
+        aware.stop_announcement(contact);
+    }
+
+private:
+    aware_jni& aware;
+    const aware::contact contact;
 };
 
 } // namespace detail

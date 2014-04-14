@@ -65,6 +65,11 @@ service_subscription_ptr client::add_monitor(monitor_ptr monitor, const std::str
     return get_aware_jni()->subscribe_service(serviceType, monitor);
 }
 
+service_announcement_ptr client::add_announcement(const aware::contact& contact) const
+{
+    return get_aware_jni()->announce_service(contact);
+}
+
 } // namespace detail
 } // namespace android
 } // namepsace aware
