@@ -53,4 +53,9 @@ public class AwareContact
     public void setServiceType(String serviceType) {
         this.serviceType = serviceType;
     }
+
+    public String toString() {
+        return "AwareContact, serviceType=" + serviceType + ", serviceName="+serviceName
+               + ", host=" + host + ", port=" + port;
+    }
 }

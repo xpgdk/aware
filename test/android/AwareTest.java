@@ -31,6 +31,10 @@ public class AwareTest implements AwareAdapter {
         aware.serviceJoin(contact);
         aware.serviceJoin(contact);
 
+        test.nativeStartAnnouncement();
+        Thread.sleep(1000);
+        test.nativeStopAnnouncement();
+
         test.testDone();
         aware.destroy();
         System.err.println("Aware destroyed");
@@ -44,10 +48,20 @@ public class AwareTest implements AwareAdapter {
         System.err.println("stopDiscovery " + serviceType);
     }
 
+    public void startAnnouncement(AwareContact contact) {
+        System.err.println("startAnnouncement: " + contact);
+    }
+
+    public void stopAnnouncement(AwareContact contact) {
+        System.err.println("stopAnnouncement: " + contact);
+    }
+
     native void initTest(Aware aware);
     native void destroyMonitorSocket();
     native void performTest();
     native void testDone();
+    native void nativeStartAnnouncement();
+    native void nativeStopAnnouncement();
 
     static {
         System.loadLibrary("android_test_jni");
