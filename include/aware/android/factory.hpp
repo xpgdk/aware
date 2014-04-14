@@ -35,7 +35,7 @@ public:
         awareObject(jniEnv->NewGlobalRef(awareObject)) {
     }
 
-    ~factory() {
+    virtual ~factory() {
         jniEnv->DeleteGlobalRef(awareObject);
     }
 

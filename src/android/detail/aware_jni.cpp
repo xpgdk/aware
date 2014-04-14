@@ -20,7 +20,6 @@ aware_jni::~aware_jni()
 
 service_subscription_ptr aware_jni::subscribe_service(const std::string& service_type, monitor_ptr monitor)
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
     service_subscription_ptr tmp;
 
     service_subscription_map::iterator where = service_subscribers.lower_bound(service_type);
@@ -56,17 +55,13 @@ void aware_jni::stop_listen(const std::string& service_type)
 
 void aware_jni::deliver_response(const response_type& response)
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
     service_subscription_map::iterator it = service_subscribers.find(response.second.get_type());
     if (it != service_subscribers.end() ) {
-        std::cerr << "Subscribers found" << std::endl;
         if (!it->second.expired()) {
             it->second.lock()->deliver_response(response);
         } else {
-            std::cerr << "No alive subscribers found" << std::endl;
+            service_subscribers.erase(it);
         }
-    } else {
-        std::cerr << "No service subscribers found" << std::endl;
     }
 }
 
@@ -74,13 +69,11 @@ service_subscription::service_subscription(aware_jni& aware, const std::string& 
     : aware(aware),
       service_type(service_type)
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
     aware.listen_for_service(service_type);
 }
 
 service_subscription::~service_subscription()
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
     aware.stop_listen(service_type);
 }
 
@@ -94,8 +87,6 @@ void service_subscription::deliver_response(const aware_jni::response_type& resp
     for(monitors_type::iterator it = monitors.begin(); it != monitors.end(); it++) {
         if (!it->expired()) {
             it->lock()->deliver_response(response);
-        } else {
-            std::cerr << "Monitor died" << std::endl;
         }
     }
 }

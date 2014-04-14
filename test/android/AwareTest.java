@@ -20,8 +20,15 @@ public class AwareTest implements AwareAdapter {
         AwareContact contact = new AwareContact("announce", "Testing");
         contact.setHost(InetAddress.getLocalHost());
         contact.setPort(121);
+
         aware.serviceJoin(contact);
 
+        aware.serviceLeave(new AwareContact("announce", "Testing"));
+
+        Thread.sleep(1000);
+        test.destroyMonitorSocket();
+
+        aware.serviceJoin(contact);
         aware.serviceJoin(contact);
 
         test.testDone();
@@ -38,6 +45,7 @@ public class AwareTest implements AwareAdapter {
     }
 
     native void initTest(Aware aware);
+    native void destroyMonitorSocket();
     native void performTest();
     native void testDone();
 
