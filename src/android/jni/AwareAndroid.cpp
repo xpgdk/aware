@@ -21,21 +21,21 @@ static boost::asio::ip::tcp::endpoint convert_endpoint(JNIEnv* env, jobject host
         return boost::asio::ip::tcp::endpoint();
     }
 
-    jclass addressType = env->GetObjectClass(host);
-    jmethodID getAddressId = env->GetMethodID(addressType, "getAddress", "()[B");
+    jclass address_type = env->GetObjectClass(host);
+    jmethodID get_address_id = env->GetMethodID(address_type, "getAddress", "()[B");
 
-    jclass inet6Type = env->FindClass("java/net/Inet6Address");
+    jclass inet6_type = env->FindClass("java/net/Inet6Address");
 
     boost::asio::ip::address address;
 
-    jbyteArray address_bytes_java = static_cast<jbyteArray>(env->CallObjectMethod(host, getAddressId));
+    jbyteArray address_bytes_java = static_cast<jbyteArray>(env->CallObjectMethod(host, get_address_id));
     jbyte* address_bytes = env->GetByteArrayElements(address_bytes_java, NULL);
     jint java_array_size = env->GetArrayLength(address_bytes_java);
 
     boost::asio::ip::address_v6::bytes_type v6_addr;
     boost::asio::ip::address_v4::bytes_type v4_addr;
 
-    if (inet6Type == addressType && java_array_size == static_cast<int>(v6_addr.size())) {
+    if (inet6_type == address_type && java_array_size == static_cast<int>(v6_addr.size())) {
         for(size_t i=0; i<v6_addr.size(); i++) {
             v6_addr[i] = address_bytes[i];
         }
@@ -67,18 +67,18 @@ static std::string convert_string(JNIEnv* env, jstring string)
 
 static aware::contact convert_contact(JNIEnv* env, jobject java_contact)
 {
-    jmethodID getServiceNameId = env->GetMethodID(env->GetObjectClass(java_contact), "getServiceName", "()Ljava/lang/String;");
-    jmethodID getServiceTypeId = env->GetMethodID(env->GetObjectClass(java_contact), "getServiceType", "()Ljava/lang/String;");
-    jmethodID getPortId = env->GetMethodID(env->GetObjectClass(java_contact), "getPort", "()I");
-    jmethodID getHostId = env->GetMethodID(env->GetObjectClass(java_contact), "getHost", "()Ljava/net/InetAddress;");
+    jmethodID get_service_name_id = env->GetMethodID(env->GetObjectClass(java_contact), "getServiceName", "()Ljava/lang/String;");
+    jmethodID get_service_type_id = env->GetMethodID(env->GetObjectClass(java_contact), "getServiceType", "()Ljava/lang/String;");
+    jmethodID get_port_id = env->GetMethodID(env->GetObjectClass(java_contact), "getPort", "()I");
+    jmethodID get_host_id = env->GetMethodID(env->GetObjectClass(java_contact), "getHost", "()Ljava/net/InetAddress;");
 
-    jobject serviceName = env->CallObjectMethod(java_contact, getServiceNameId);
-    jobject serviceType = env->CallObjectMethod(java_contact, getServiceTypeId);
-    jobject host = env->CallObjectMethod(java_contact, getHostId);
-    int port = env->CallIntMethod(java_contact, getPortId);
+    jobject service_name = env->CallObjectMethod(java_contact, get_service_name_id);
+    jobject service_type = env->CallObjectMethod(java_contact, get_service_type_id);
+    jobject host = env->CallObjectMethod(java_contact, get_host_id);
+    int port = env->CallIntMethod(java_contact, get_port_id);
 
-    std::string name = convert_string(env, static_cast<jstring>(serviceName));
-    std::string type = convert_string(env, static_cast<jstring>(serviceType));
+    std::string name = convert_string(env, static_cast<jstring>(service_name));
+    std::string type = convert_string(env, static_cast<jstring>(service_type));
     boost::asio::ip::tcp::endpoint endpoint = convert_endpoint(env, host, port);
 
     return aware::contact(name, type, endpoint);
@@ -89,8 +89,8 @@ void JNICALL Java_dk_xpg_aware_Aware_nativeCreate(JNIEnv* env, jobject self)
 {
     aware_jni *awarejni = new aware_jni(env, self);
 
-    jfieldID nativeDataId = env->GetFieldID(env->GetObjectClass(self), "nativeData", "J");
-    env->SetLongField(self, nativeDataId, reinterpret_cast<jlong>(awarejni));
+    jfieldID native_data_id = env->GetFieldID(env->GetObjectClass(self), "nativeData", "J");
+    env->SetLongField(self, native_data_id, reinterpret_cast<jlong>(awarejni));
 }
 
 extern "C" JNIEXPORT

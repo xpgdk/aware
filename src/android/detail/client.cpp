@@ -14,8 +14,7 @@ monitor_ptr monitor::create(aware::android::io_service& io, const aware::contact
 {
     monitor_ptr instance = boost::make_shared<aware::android::detail::monitor>(boost::ref(io), contact);
 
-    const std::string& type = contact.get_type();
-    instance->subscription = io.get_client().add_monitor(instance, type);
+    instance->subscription = io.get_client().add_monitor(instance, contact);
 
     return instance;
 }
@@ -60,9 +59,9 @@ aware_jni* client::get_aware_jni() const
     return reinterpret_cast<aware_jni*>(ptr);
 }
 
-service_subscription_ptr client::add_monitor(monitor_ptr monitor, const std::string& serviceType) const
+service_subscription_ptr client::add_monitor(monitor_ptr monitor, const aware::contact& contact) const
 {
-    return get_aware_jni()->subscribe_service(serviceType, monitor);
+    return get_aware_jni()->subscribe_service(contact, monitor);
 }
 
 service_announcement_ptr client::add_announcement(const aware::contact& contact) const

@@ -48,14 +48,14 @@ public:
     aware_jni(JNIEnv* env, jobject java_self);
     ~aware_jni();
 
-    service_subscription_ptr subscribe_service(const std::string& service_type, monitor_ptr monitor);
+    service_subscription_ptr subscribe_service(const aware::contact& contact, monitor_ptr monitor);
     service_announcement_ptr announce_service(const aware::contact& contact);
 
     void deliver_response(const response_type& response);
 
 private:
-    void listen_for_service(const std::string& service_type);
-    void stop_listen(const std::string& service_type);
+    void listen_for_service(const aware::contact& contact);
+    void stop_listen(const aware::contact& contact);
 
     void start_announcement(const aware::contact& contact);
     void stop_announcement(const aware::contact& contact);
@@ -72,7 +72,7 @@ class service_subscription
 {
     typedef std::set<monitor_weak_ptr> monitors_type;
 public:
-    service_subscription(aware_jni& aware, const std::string& service_type);
+    service_subscription(aware_jni& aware, const aware::contact& contact);
     ~service_subscription();
 
     void add_monitor(monitor_weak_ptr monitor);
@@ -81,7 +81,7 @@ public:
 
 private:
     aware_jni& aware;
-    const std::string service_type;
+    const aware::contact contact;
     monitors_type monitors;
 };
 

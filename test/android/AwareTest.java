@@ -40,12 +40,12 @@ public class AwareTest implements AwareAdapter {
         System.err.println("Aware destroyed");
     }
 
-    public void discover(String serviceType) {
-        System.err.println("discovery " + serviceType);
+    public void startDiscover(AwareContact contact) {
+        System.err.println("startDiscover: " + contact);
     }
 
-    public void stopDiscover(String serviceType) {
-        System.err.println("stopDiscovery " + serviceType);
+    public void stopDiscover(AwareContact contact) {
+        System.err.println("stopDiscover: " + contact);
     }
 
     public void startAnnouncement(AwareContact contact) {
