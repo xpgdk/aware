@@ -81,19 +81,13 @@ static aware::contact convert_contact(JNIEnv* env, jobject java_contact)
     std::string type = convert_string(env, static_cast<jstring>(serviceType));
     boost::asio::ip::tcp::endpoint endpoint = convert_endpoint(env, host, port);
 
-    std::cerr << "Converted, name=" << name << ", type=" << type << std::endl;
-    std::cerr << "Endpoint: " << endpoint << std::endl;
-
     return aware::contact(name, type, endpoint);
 }
 
 extern "C" JNIEXPORT
 void JNICALL Java_dk_xpg_aware_Aware_nativeCreate(JNIEnv* env, jobject self)
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
     aware_jni *awarejni = new aware_jni(env, self);
-
-    std::cerr << "awarejni: " << awarejni << std::endl;
 
     jfieldID nativeDataId = env->GetFieldID(env->GetObjectClass(self), "nativeData", "J");
     env->SetLongField(self, nativeDataId, reinterpret_cast<jlong>(awarejni));

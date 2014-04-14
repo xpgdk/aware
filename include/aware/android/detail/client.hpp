@@ -48,8 +48,6 @@ public:
     ~client();
 
     service_subscription_ptr add_monitor(monitor_ptr monitor, const std::string& serviceType) const;
-    //void remove_monitor(monitor* monitor, const std::string& serviceType);
-    void serviceDiscovered(std::string& serviceName);
 
 private:
     aware_jni* get_aware_jni() const;

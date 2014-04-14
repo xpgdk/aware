@@ -11,7 +11,6 @@ public class Aware {
         if (!initialized) {
             nativeCreate();
             initialized = true;
-            System.err.println("nativeData: " + nativeData);
         }
     }
 

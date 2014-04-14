@@ -21,27 +21,30 @@ static volatile bool running;
 
 void io_function()
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
     ios.run();
 }
 
 void process_listen(const boost::system::error_code& error, const aware::contact& contact)
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
     if (!error) {
-        std::cerr << "Got service: " << contact.get_type() << std::endl;
+        if (contact.get_endpoint().address().is_unspecified()) {
+            std::cerr << "Lost service: " << contact.get_type() << std::endl;
+        } else {
+            std::cerr << "Got service: " << contact.get_type() << std::endl;
+        }
+        if (monitor_socket) {
+            monitor_socket->async_listen(contact, boost::bind(process_listen, boost::asio::placeholders::error, _2));
+        }
     }
 }
 
 void test_method()
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
 }
 
 extern "C" JNIEXPORT
 void JNICALL Java_dk_xpg_aware_test_AwareTest_initTest(JNIEnv* env, jobject self, jobject aware_object)
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
 
     work = boost::make_shared<boost::asio::io_service::work>(boost::ref(ios));
 
@@ -56,16 +59,19 @@ void JNICALL Java_dk_xpg_aware_test_AwareTest_initTest(JNIEnv* env, jobject self
 extern "C" JNIEXPORT
 void JNICALL Java_dk_xpg_aware_test_AwareTest_performTest(JNIEnv* env, jobject self)
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
-
     aware::contact contact("", "announce");
     monitor_socket->async_listen(contact, boost::bind(process_listen, boost::asio::placeholders::error, _2));
 }
 
 extern "C" JNIEXPORT
+void JNICALL Java_dk_xpg_aware_test_AwareTest_destroyMonitorSocket(JNIEnv* env, jobject self)
+{
+    monitor_socket.reset();
+}
+
+extern "C" JNIEXPORT
 void JNICALL Java_dk_xpg_aware_test_AwareTest_testDone(JNIEnv* env, jobject self)
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
 
     work.reset();
 

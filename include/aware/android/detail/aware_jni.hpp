@@ -46,16 +46,6 @@ public:
 
     service_subscription_ptr subscribe_service(const std::string& service_type, monitor_ptr monitor);
 
-    void register_client(client* client) {
-        std::cerr << __PRETTY_FUNCTION__ << std::endl;;
-        clients.insert(client);
-    }
-
-    void unregister_client(client* client) {
-        std::cerr << __PRETTY_FUNCTION__ << std::endl;;
-        clients.erase(client);
-    }
-
     void deliver_response(const response_type& response);
 
 private:
@@ -65,7 +55,6 @@ private:
 private:
     JNIEnv* jni_env;
     jobject java_self;
-    std::set<client*> clients;
     service_subscription_map service_subscribers;
 };
 

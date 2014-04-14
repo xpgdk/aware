@@ -45,15 +45,10 @@ client::client(JNIEnv* env, jobject awareObject)
     : jniEnv(env),
       awareObject(jniEnv->NewGlobalRef(awareObject))
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
-    aware_jni *awarejni = get_aware_jni();
-    std::cerr << "awarejni: " << awarejni << std::endl;
-    awarejni->register_client(this);
 }
 
 client::~client()
 {
-    get_aware_jni()->unregister_client(this);
     jniEnv->DeleteGlobalRef(awareObject);
 }
 
@@ -67,13 +62,7 @@ aware_jni* client::get_aware_jni() const
 
 service_subscription_ptr client::add_monitor(monitor_ptr monitor, const std::string& serviceType) const
 {
-    std::cerr << __PRETTY_FUNCTION__ << std::endl;
     return get_aware_jni()->subscribe_service(serviceType, monitor);
-}
-
-void client::serviceDiscovered(std::string& serviceName)
-{
-    std::cerr << __PRETTY_FUNCTION__ << ": " << serviceName << std::endl;
 }
 
 } // namespace detail
