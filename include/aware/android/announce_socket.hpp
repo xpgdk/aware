@@ -14,7 +14,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <boost/function.hpp>
-#include <aware/android/io_service.hpp>
+#include <aware/android/service.hpp>
 #include <aware/contact.hpp>
 
 #include <aware/announce_socket.hpp>
@@ -26,20 +26,19 @@ namespace android
 
 namespace detail { class service_announcement; }
 
-class io_service;
-
-class announce_socket : public aware::announce_socket
+class announce_socket : public aware::announce_socket,
+                        public boost::asio::basic_io_object<android::service>
 {
 public:
     typedef boost::function<void (const boost::system::error_code&)> async_announce_handler;
 
-    announce_socket(aware::android::io_service&);
+    announce_socket(boost::asio::io_service&);
 
     void async_announce(const aware::contact& contact,
                         async_announce_handler);
 
 private:
-    aware::android::io_service& ios;
+    boost::asio::io_service& ios;
     boost::shared_ptr<aware::android::detail::service_announcement> announcement;
 };
 

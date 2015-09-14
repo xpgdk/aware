@@ -28,7 +28,7 @@ namespace aware
 {
 namespace android
 {
-    class io_service;
+    class service;
 } // namespace android
 } // namespace aware
 
@@ -51,7 +51,7 @@ class monitor
     typedef aware::monitor_socket::async_listen_handler handler_type;
 
 public:
-    static monitor_ptr create(aware::android::io_service& io, const aware::contact& contact);
+    static monitor_ptr create(boost::asio::io_service& io, const aware::contact& contact);
     ~monitor();
 
     void add_handler(handler_type handler)
@@ -69,12 +69,12 @@ public:
     void dispatch();
 
 public:
-    monitor(aware::android::io_service& io,
+    monitor(boost::asio::io_service& io,
             const aware::contact& contact)
         : io(io), contact(contact) {}
 
 private:
-    aware::android::io_service& io;
+    boost::asio::io_service& io;
     aware::contact contact;
     std::queue<response_type> responses;
     std::queue<handler_type> handlers;

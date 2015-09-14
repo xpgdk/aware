@@ -95,33 +95,12 @@ set(AWARE_SRC
   src/contact.cpp
 )
 
-set(AWARE_ANDROID_SOURCE
-  src/android/monitor_socket.cpp
-  src/android/announce_socket.cpp
-  src/android/detail/client.cpp
-  src/android/detail/aware_jni.cpp
-)
-
-set(AWARE_ANDROID_JAVA_SOURCE
-  src/android/java/dk/xpg/aware/Aware.java
-  src/android/java/dk/xpg/aware/AwareContact.java
-  src/android/java/dk/xpg/aware/AwareAdapter.java
-)
-
 add_subdirectory(src/detail)
 
 if(AWARE_BACKEND STREQUAL "avahi")
   add_subdirectory(src/avahi)
-  #list(APPEND AWARE_SRC ${AWARE_AVAHI_SOURCE})
 elseif(AWARE_BACKEND STREQUAL "android")
-  add_jar(AwareAndroid ${AWARE_ANDROID_JAVA_SOURCE})
-
-  list(APPEND AWARE_SRC ${AWARE_ANDROID_SOURCE})
-
-  add_library(AwareAndroidJNI SHARED 
-        src/android/jni/AwareAndroid.cpp
-    )
-  target_link_libraries(AwareAndroidJNI aware)
+  add_subdirectory(src/android)
 else()
   message(FATAL_ERROR "'${AWARE_BACKEND}' is an invalid value for AWARE_BACKEND")
 endif()
@@ -129,8 +108,6 @@ endif()
 add_library(aware STATIC ${AWARE_SRC})
 
 target_link_libraries(aware aware-backend aware-detail ${EXTRA_LIBS})
-#target_link_libraries(aware ${EXTRA_LIBS})
-#set_target_properties(aware PROPERTIES COMPILE_FLAGS "-fPIC")
 
 ###############################################################################
 # Examples
@@ -153,3 +130,8 @@ add_executable(readme
 )
 set_target_properties(readme PROPERTIES RUNTIME_OUTPUT_DIRECTORY bin)
 target_link_libraries(readme aware)
+
+###############################################################################
+# Tests
+###############################################################################
+add_subdirectory(test)

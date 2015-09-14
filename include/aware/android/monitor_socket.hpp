@@ -16,7 +16,7 @@
 #include <string>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
-#include <aware/android/io_service.hpp>
+#include <aware/android/service.hpp>
 #include <aware/contact.hpp>
 #include <aware/monitor_socket.hpp>
 
@@ -36,13 +36,13 @@ public:
     typedef boost::function<void (const boost::system::error_code&,
                                   const aware::contact&)> async_listen_handler;
 
-    monitor_socket(aware::android::io_service& io) : io(io) {}
+    monitor_socket(boost::asio::io_service& io) : io(io) {}
 
     void async_listen(const aware::contact& contact,
                       async_listen_handler handler);
 
 private:
-    aware::android::io_service& io;
+    boost::asio::io_service& io;
     monitor_map monitors; // FIXME: thread-safety
 };
 

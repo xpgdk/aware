@@ -1,6 +1,6 @@
 #include <aware/android/detail/aware_jni.hpp>
 #include <aware/android/detail/client.hpp>
-#include <aware/android/io_service.hpp>
+#include <aware/android/service.hpp>
 #include <iostream>
 
 namespace aware
@@ -10,11 +10,11 @@ namespace android
 namespace detail
 {
 
-monitor_ptr monitor::create(aware::android::io_service& io, const aware::contact& contact)
+monitor_ptr monitor::create(boost::asio::io_service& io, const aware::contact& contact)
 {
     monitor_ptr instance = boost::make_shared<aware::android::detail::monitor>(boost::ref(io), contact);
 
-    instance->subscription = io.get_client().add_monitor(instance, contact);
+    instance->subscription = boost::asio::use_service<android::service>(io).get_client().add_monitor(instance, contact);
 
     return instance;
 }
@@ -33,7 +33,7 @@ void monitor::dispatch()
     const response_type& response = responses.front();
     handler_type& handler = handlers.front();
 
-    // TODO: Rework code so that we call dispatch from io_service thread
+    // TODO: Rework code so that we call dispatch from service thread
     io.post(boost::bind(handler,response.first, response.second));
 
     responses.pop();

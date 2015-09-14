@@ -26,7 +26,7 @@ namespace aware
 {
 namespace android
 {
-    class io_service;
+    class service;
 } // namespace android
 } // namespace aware
 
@@ -40,7 +40,7 @@ namespace detail
 class aware_jni;
 class client;
 
-// Client handles all sockets for a single aware::android::io_service.
+// Client handles all sockets for a single aware::android::service.
 class client 
 {
 public:

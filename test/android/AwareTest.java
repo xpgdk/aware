@@ -22,11 +22,12 @@ public class AwareTest implements AwareAdapter {
         contact.setPort(121);
 
         aware.serviceJoin(contact);
-
+        Thread.sleep(1000);
         aware.serviceLeave(new AwareContact("announce", "Testing"));
 
         Thread.sleep(1000);
         test.destroyMonitorSocket();
+        Thread.sleep(1000);
 
         aware.serviceJoin(contact);
         aware.serviceJoin(contact);
